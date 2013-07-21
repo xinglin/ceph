@@ -588,6 +588,7 @@ AC_CHECK_HEADERS([sys/xattr.h])
 AC_CHECK_HEADERS([sys/malloc.h])
 AC_CHECK_HEADERS([strings.h])
 AC_CHECK_FUNCS([prctl])
+AC_CHECK_FUNCS([sem_timedwait])
 
 AC_CHECK_TYPES(int8_t)
 AC_CHECK_TYPES(uint8_t)
