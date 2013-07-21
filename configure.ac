@@ -606,6 +606,7 @@ AC_CHECK_HEADERS([strings.h])
 AC_CHECK_FUNCS([prctl])
 AC_CHECK_FUNCS([sem_timedwait])
 AC_CHECK_FUNCS([posix_fadvise])
+AC_CHECK_FUNCS([pipe2])
 
 AC_MSG_CHECKING([for fdatasync])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
