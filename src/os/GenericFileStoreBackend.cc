@@ -204,6 +204,7 @@ int GenericFileStoreBackend::syncfs()
 
 int GenericFileStoreBackend::do_fiemap(int fd, off_t start, size_t len, struct fiemap **pfiemap)
 {
+#ifdef FS_IOC_FIEMAP
   struct fiemap *fiemap = NULL;
   struct fiemap *_realloc_fiemap = NULL;
   int size;
@@ -250,4 +251,7 @@ done_err:
   *pfiemap = NULL;
   free(fiemap);
   return ret;
+#else
+  return -ENOSYS;
+#endif
 }
