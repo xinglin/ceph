@@ -3,6 +3,7 @@
 #include "include/types.h"
 #include "cls/rgw/cls_rgw_ops.h"
 #include "include/rados/librados.hpp"
+#include "include/compat.h"
 
 #include "common/debug.h"
 
