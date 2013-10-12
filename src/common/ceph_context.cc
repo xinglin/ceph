@@ -32,7 +32,7 @@
 
 #include <iostream>
 #include <pthread.h>
-#include <semaphore.h>
+#include <poll.h>
 
 #include "include/spinlock.h"
 
@@ -44,32 +44,33 @@ public:
   CephContextServiceThread(CephContext *cct)
     : _reopen_logs(false), _exit_thread(false), _cct(cct)
   {
-    sem_init(&_sem, 0, 0);
+    int r = pipe(_pipefd);
+    assert(r == 0);
+    r = fcntl(_pipefd[0], F_SETFL, O_NONBLOCK);
+    assert(r == 0);
   };
 
   ~CephContextServiceThread()
   {
-    sem_destroy(&_sem);
+    close(_pipefd[0]);
+    close(_pipefd[1]);
   };
 
   void *entry()
   {
     while (1) {
-      if (_cct->_conf->heartbeat_interval) {
-#ifdef HAVE_SEM_TIMEDWAIT
-        struct timespec timeout;
-        clock_gettime(CLOCK_REALTIME, &timeout);
-        timeout.tv_sec += _cct->_conf->heartbeat_interval;
-        sem_timedwait(&_sem, &timeout);
-#else
-        sem_wait(&_sem);
-#endif
-      } else {
-        sem_wait(&_sem);
-      }
+      int timeout;
+      if (_cct->_conf->heartbeat_interval)
+        timeout = _cct->_conf->heartbeat_interval * 1000;
+      else
+        timeout = -1; /* no timeout */
+
+      wait(timeout);
+
       if (_exit_thread) {
         break;
       }
+
       if (_reopen_logs) {
         _cct->_log->reopen_log_file();
         _reopen_logs = false;
@@ -82,19 +83,36 @@ public:
   void reopen_logs()
   {
     _reopen_logs = true;
-    sem_post(&_sem);
+    signal();
   }
 
   void exit_thread()
   {
     _exit_thread = true;
-    sem_post(&_sem);
+    signal();
   }
 
 private:
+  void signal() {
+    write(_pipefd[1], "\0", 1);
+  }
+
+  void wait(int timeout) {
+    struct pollfd pfd;
+    pfd.fd = _pipefd[0];
+    pfd.events = POLLIN | POLLERR;
+    pfd.revents = 0;
+
+    int r = poll(&pfd, 1, timeout);
+    if (r > 0) {
+      char c;
+      read(_pipefd[0], &c, 1);
+    }
+  }
+
   volatile bool _reopen_logs;
   volatile bool _exit_thread;
-  sem_t _sem;
+  int _pipefd[2];
   CephContext *_cct;
 };
 
