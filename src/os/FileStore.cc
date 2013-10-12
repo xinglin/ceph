@@ -2595,8 +2595,10 @@ int FileStore::fiemap(coll_t cid, const ghobject_t& oid,
     if (r < 0)
       goto done;
 
-    if (fiemap->fm_mapped_extents == 0)
+    if (fiemap->fm_mapped_extents == 0) {
+      free(fiemap);
       goto done;
+    }
 
     struct fiemap_extent *extent = &fiemap->fm_extents[0];
 
@@ -2631,6 +2633,7 @@ int FileStore::fiemap(coll_t cid, const ghobject_t& oid,
       extent++;
     }
   }
+  free(fiemap);
 
 done:
   if (r >= 0) {
@@ -2639,7 +2642,6 @@ done:
   }
 
   dout(10) << "fiemap " << cid << "/" << oid << " " << offset << "~" << len << " = " << r << " num_extents=" << exomap.size() << " " << exomap << dendl;
-  free(fiemap);
   assert(!m_filestore_fail_eio || r != -EIO);
   return r;
 }
