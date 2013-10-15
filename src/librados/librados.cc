@@ -30,6 +30,7 @@
 #include <cls/lock/cls_lock_client.h>
 
 #include <string>
+#include <cstring>
 #include <map>
 #include <set>
 #include <vector>
@@ -1675,6 +1676,22 @@ extern "C" rados_config_t rados_cct(rados_t cluster)
 {
   librados::RadosClient *client = (librados::RadosClient *)cluster;
   return (rados_config_t)client->cct;
+}
+
+extern "C" int rados_ping_monitor(rados_t cluster, const char *mon_id,
+                                  char *buf, size_t len)
+{
+  librados::RadosClient *client = (librados::RadosClient *)cluster;
+  string str;
+
+  if (!mon_id)
+    return -EINVAL;
+
+  int ret = client->ping_monitor(mon_id, &str);
+  if (ret == 0 && !str.empty() && buf && len > 0) {
+    std::strncpy(buf, str.c_str(), len);
+  }
+  return ret;
 }
 
 extern "C" int rados_connect(rados_t cluster)

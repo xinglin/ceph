@@ -224,6 +224,18 @@ int rados_create2(rados_t *pcluster, const char *const clustername,
 int rados_create_with_context(rados_t *cluster, rados_config_t cct);
 
 /**
+ * Ping the monitor with ID @p mon_id, storing the resulting reply in
+ * @p buf (if specified) with a maximum size of @p len.
+ *
+ * @param      cluster cluster handle
+ * @param[in]  mon_id  ID of the monitor to ping
+ * @param[out] buf     where to store the resulting reply
+ * @param[out] len     maximum bytes to store in @p buf
+ */
+int rados_ping_monitor(rados_t cluster, const char *mon_id,
+                       char *buf, size_t len);
+
+/**
  * Connect to the cluster.
  *
  * @note BUG: Before calling this, calling a function that communicates with the
