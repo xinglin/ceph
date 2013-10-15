@@ -361,6 +361,30 @@ Rados object in state %s." % (self.state))
         if (ret != 0):
             raise make_ex(ret, "error calling conf_set")
 
+
+    def ping_monitor(self, mon_id):
+      """
+      Ping a monitor to assess liveness
+
+      May be used as a simply way to assess liveness, or to obtain
+      informations about the monitor in a simple way even in the
+      absence of quorum.
+
+      :param mon_id: the ID portion of the monitor's name (i.e., mon.<ID>)
+      :type mon_id: str
+      :returns: the string reply from the monitor
+      """
+
+      self.require_state("configuring", "connected")
+      ret_buf = create_string_buffer(10000)
+
+      ret = run_in_thread(self.librados.rados_ping_monitor,
+                          (self.cluster, c_char_p(mon_id),
+                          ret_buf, c_size_t(10000)))
+      if ret != 0:
+        raise make_ex(ret, "error calling ping_monitor")
+      return ret_buf.value
+
     def connect(self, timeout=0):
         """
         Connect to the cluster.
