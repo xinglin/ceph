@@ -4302,7 +4302,7 @@ int ReplicatedPG::fill_in_copy_get(bufferlist::iterator& bp, OSDOp& osd_op,
   reply_obj.category = oi.category;
 
   // attrs
-  map<string,bufferptr>& out_attrs = reply_obj.in_attrs;
+  map<string,bufferlist>& out_attrs = reply_obj.attrs;
   if (!cursor.attr_complete) {
     result = osd->store->getattrs(coll, soid, out_attrs, true);
     if (result < 0)

@@ -2528,7 +2528,7 @@ void object_copy_data_t::encode_classic(bufferlist& bl) const
 {
   ::encode(size, bl);
   ::encode(mtime, bl);
-  ::encode(in_attrs, bl);
+  ::encode(attrs, bl);
   ::encode(data, bl);
   ::encode(omap, bl);
   ::encode(cursor, bl);
@@ -2550,7 +2550,7 @@ void object_copy_data_t::encode(bufferlist& bl) const
   ::encode(size, bl);
   ::encode(mtime, bl);
   ::encode(category, bl);
-  ::encode(in_attrs, bl);
+  ::encode(attrs, bl);
   ::encode(data, bl);
   ::encode(omap, bl);
   ::encode(cursor, bl);
@@ -2586,7 +2586,6 @@ void object_copy_data_t::generate_test_instances(list<object_copy_data_t*>& o)
   o.back()->size = 1234;
   o.back()->mtime.set_from_double(1234);
   bufferptr bp("there", 5);
-  o.back()->in_attrs["hello"] = bp;
   bufferlist bl;
   bl.push_back(bp);
   o.back()->attrs["hello"] = bl;
@@ -2607,7 +2606,6 @@ void object_copy_data_t::dump(Formatter *f) const
   f->dump_stream("mtime") << mtime;
   /* we should really print out the attrs here, but bufferlist
      const-correctness prents that */
-  f->dump_int("in_attrs_size", in_attrs.size());
   f->dump_int("attrs_size", attrs.size());
   f->dump_int("omap_size", omap.size());
   f->dump_int("data_length", data.length());

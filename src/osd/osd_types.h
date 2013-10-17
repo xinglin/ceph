@@ -1857,7 +1857,6 @@ struct object_copy_data_t {
   object_copy_cursor_t cursor;
   uint64_t size;
   utime_t mtime;
-  map<string, bufferptr> in_attrs;
   map<string, bufferlist> attrs;
   bufferlist data;
   map<string, bufferlist> omap;
